@@ -5923,9 +5923,9 @@ def snspd_candelabra(  # noqa: C901
         layer=0,
     ):
         """Returns phidl device low-crowding u-turn for candelabra meander."""
-        if (flair < 1.0):
+        if flair < 1.0:
             flair = 1.0
-        barc = optimal_90deg(width=wire_width*flair, layer=layer)
+        barc = optimal_90deg(width=wire_width * flair, layer=layer)
         if not sharp:
             # For non-rounded outer radii
             # Not fully implemented
@@ -5935,17 +5935,15 @@ def snspd_candelabra(  # noqa: C901
             port2or = barc.ports[2].orientation
             barc = boolean(
                 A=barc,
-                B=copy(barc).move([-wire_width*flair, -wire_width*flair]),
+                B=copy(barc).move([-wire_width * flair, -wire_width * flair]),
                 operation="not",
                 layer=layer,
             )
             barc.add_port(
-                name=1, midpoint=port1mp, width=wire_width*flair,
-                orientation=port1or
+                name=1, midpoint=port1mp, width=wire_width * flair, orientation=port1or
             )
             barc.add_port(
-                name=2, midpoint=port2mp, width=wire_width*flair,
-                orientation=port2or
+                name=2, midpoint=port2mp, width=wire_width * flair, orientation=port2or
             )
         pin = optimal_hairpin(
             width=wire_width * flair,
@@ -5953,7 +5951,7 @@ def snspd_candelabra(  # noqa: C901
             length=8 * wire_width * flair,
             layer=layer,
         )
-        pas = compass(size=(wire_width*flair, wire_pitch), layer=layer)
+        pas = compass(size=(wire_width * flair, wire_pitch), layer=layer)
         D = Device()
         arc1 = D.add_ref(barc)
         arc1.rotate(90)
@@ -5982,28 +5980,43 @@ def snspd_candelabra(  # noqa: C901
             tempc.connect("N", pin1.ports[2])
         xdist = arc2.ports[1].x - arc1.ports[1].x
         D.movex(-arc1.ports[1].x)
-        if (stretch > 1.0):
+        if stretch > 1.0:
             D.flatten()
             for poly in D.polygons:
                 poly.scale(stretch, 1.0)
         Dtemp = Device()
         Dtemp.add_ref(D)
-        Dtemp.add_port(name=1, midpoint=[0, arc1.ports[1].midpoint[1]],
-                       width=wire_width,
-                       orientation=arc1.ports[1].orientation)
-        Dtemp.add_port(name=2, midpoint=[xdist*stretch,
-                                         arc2.ports[1].midpoint[1]],
-                       width=wire_width,
-                       orientation=arc2.ports[1].orientation)
+        Dtemp.add_port(
+            name=1,
+            midpoint=[0, arc1.ports[1].midpoint[1]],
+            width=wire_width,
+            orientation=arc1.ports[1].orientation,
+        )
+        Dtemp.add_port(
+            name=2,
+            midpoint=[xdist*stretch, arc2.ports[1].midpoint[1]],
+            width=wire_width,
+            orientation=arc2.ports[1].orientation,
+        )
         D = Device()
         D.add_ref(Dtemp)
-        if (flair > 1.0):
-            step1 = D.add_ref(optimal_step(
-                start_width=wire_width, end_width=wire_width*flair,
-                symmetric=False, layer=layer))
-            step2 = D.add_ref(optimal_step(
-                start_width=wire_width, end_width=wire_width*flair,
-                symmetric=False, layer=layer))
+        if flair > 1.0:
+            step1 = D.add_ref(
+                optimal_step(
+                    start_width=wire_width,
+                    end_width=wire_width * flair,
+                    symmetric=False,
+                    layer=layer,
+                )
+            )
+            step2 = D.add_ref(
+                optimal_step(
+                    start_width=wire_width,
+                    end_width=wire_width * flair,
+                    symmetric=False,
+                    layer=layer,
+                )
+            )
             step1.connect(2, Dtemp.ports[1])
             step2.connect(2, Dtemp.ports[2])
             D.add_port(name=1, port=step1.ports[1])
@@ -6095,47 +6108,72 @@ def snspd_candelabra(  # noqa: C901
 
         return Dtemp
 
-    def bendS(wire_width=0.52, wire_pitch=0.6, haxis=90,
-              flair=1.05, stretch=1.5, vaxis=50, layer=0):
+    def bendS(
+            wire_width=0.52,
+            wire_pitch=0.6,
+            haxis=90,
+            flair=1.05,
+            stretch=1.5,
+            vaxis=50,
+            layer=0,
+    ):
 
         D = Device()
-        step1 = D.add_ref(optimal_step(
-            start_width=wire_width*flair, end_width=wire_width,
-            symmetric=True, layer=layer))
-        wire_width = wire_width*flair
+        step1 = D.add_ref(
+            optimal_step(
+                start_width=wire_width * flair,
+                end_width=wire_width,
+                symmetric=True,
+                layer=layer,
+            )
+        )
+        wire_width = wire_width * flair
         barc = optimal_90deg(width=wire_width, layer=layer)
         step1.connect(1, barc.ports[2])
         port1mp = [barc.ports[1].x, barc.ports[1].y]
         port1or = barc.ports[1].orientation
         port2mp = [step1.ports[2].x, step1.ports[2].y]
         port2or = step1.ports[2].orientation
-        barc = boolean(A=barc, B=copy(barc).move(
-            [-wire_width, -wire_width]), operation='not', layer=layer)
+        barc = boolean(
+            A=barc,
+            B=copy(barc).move([-wire_width, -wire_width]),
+            operation='not',
+            layer=layer,
+        )
         D.add_ref(barc)
         D.flatten()
         for poly in D.polygons:
             poly.scale(stretch, 1.0)
-        D.add_port(name=1, midpoint=[port1mp[0]*stretch, port1mp[1]],
-                   width=wire_width*stretch, orientation=port1or)
-        D.add_port(name=2, midpoint=[port2mp[0]*stretch, port2mp[1]],
-                   width=wire_width/flair,
-                   orientation=port2or)
+        D.add_port(
+            name=1,
+            midpoint=[port1mp[0] * stretch, port1mp[1]],
+            width=wire_width * stretch,
+            orientation=port1or,
+        )
+        D.add_port(
+            name=2,
+            midpoint=[port2mp[0] * stretch, port2mp[1]],
+            width=wire_width / flair,
+            orientation=port2or,
+        )
 
         return D
 
     D = Device(name="snspd_candelabra")
     if xwing:
-        Dtemp = xwing_uturn(wire_width=wire_width, wire_pitch=wire_pitch,
-                            layer=layer)
+        Dtemp = xwing_uturn(wire_width=wire_width, wire_pitch=wire_pitch, layer=layer)
     else:
         Dtemp = off_axis_uturn(
-            wire_width=wire_width, wire_pitch=wire_pitch, flair=flair,
-            stretch=stretch, layer=layer
+            wire_width=wire_width,
+            wire_pitch=wire_pitch,
+            flair=flair,
+            stretch=stretch,
+            layer=layer,
         )
     Dtemp_mirrored = deepcopy(Dtemp).mirror([0, 0], [0, 1])
     padding = Dtemp.xsize
     maxll = haxis - 2 * padding
-    dll = abs(Dtemp.ports[1].x - Dtemp.ports[2].x) + wire_pitch*stretch
+    dll = abs(Dtemp.ports[1].x - Dtemp.ports[2].x) + wire_pitch * stretch
     half_num_meanders = int(np.ceil(0.5 * vaxis / wire_pitch)) + 2
 
     if xwing:
@@ -6143,10 +6181,18 @@ def snspd_candelabra(  # noqa: C901
             arc(radius=wire_width * 3, width=wire_width, theta=90, layer=layer)
         ).rotate(180)
     else:
-        if (stretch > 1.0):
-            bend = D.add_ref(bendS(wire_width=wire_width, wire_pitch=wire_pitch,
-                                   haxis=haxis, flair=flair, stretch=stretch,
-                                   vaxis=vaxis, layer=layer))
+        if stretch > 1.0:
+            bend = D.add_ref(
+                bendS(
+                    wire_width=wire_width,
+                    wire_pitch=wire_pitch,
+                    haxis=haxis,
+                    flair=flair,
+                    stretch=stretch,
+                    vaxis=vaxis,
+                    layer=layer,
+                )
+            )
         else:
             bend = D.add_ref(optimal_90deg(width=wire_width, layer=layer))
 
@@ -6223,10 +6269,10 @@ def snspd_candelabra(  # noqa: C901
 
     D.movex(-D.x)
     if not xwing:
-        if(center_ports):
+        if center_ports:
             bend.movex(-bend.ports[1].x)
         else:
-            bend.movex(3*wire_width-2*bend.ports[2].x)
+            bend.movex(3 * wire_width - 2 * bend.ports[2].x)
     if (fpas.ports["W"].x - bend.ports[2].x) > 0:
         tempc = D.add_ref(
             compass(
