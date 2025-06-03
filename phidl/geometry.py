@@ -5994,7 +5994,7 @@ def snspd_candelabra(  # noqa: C901
         )
         Dtemp.add_port(
             name=2,
-            midpoint=[xdist*stretch, arc2.ports[1].midpoint[1]],
+            midpoint=[xdist * stretch, arc2.ports[1].midpoint[1]],
             width=wire_width,
             orientation=arc2.ports[1].orientation,
         )
@@ -6109,13 +6109,13 @@ def snspd_candelabra(  # noqa: C901
         return Dtemp
 
     def bendS(
-            wire_width=0.52,
-            wire_pitch=0.6,
-            haxis=90,
-            flair=1.05,
-            stretch=1.5,
-            vaxis=50,
-            layer=0,
+        wire_width=0.52,
+        wire_pitch=0.6,
+        haxis=90,
+        flair=1.05,
+        stretch=1.5,
+        vaxis=50,
+        layer=0,
     ):
 
         D = Device()
@@ -6137,7 +6137,7 @@ def snspd_candelabra(  # noqa: C901
         barc = boolean(
             A=barc,
             B=copy(barc).move([-wire_width, -wire_width]),
-            operation='not',
+            operation="not",
             layer=layer,
         )
         D.add_ref(barc)
